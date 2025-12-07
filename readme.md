@@ -41,3 +41,8 @@ Then choose a platform in the Expo CLI prompt:
 ## Tips
 - If Metro is stuck, clear cache: `npx expo start -c`
 - `npm audit fix` is optional; not required to run the app
+
+## Codex Reflection
+- How you incorporated Codex into your design and coding process: I used Codex to propose the overall travel planner layout (Home, Trips, TripForm) and to scaffold components and state flows quickly before refining styles and interactions. A majority of the code itself was written by Codex, I just made a few edits and tweaks when necessary.
+- One example where Codex’s suggestion was wrong or not ideal and how you fixed it: An earlier navigation attempt with React Navigation caused a duplicate view registration error; Codex reverted to a lightweight in-app toggle for Home/Trips to avoid the conflict.
+- One example where Codex significantly sped up your work: Generating the initial Home dashboard with itinerary, budget, and packing sections (including styles and handlers) saved time versus hand-coding from scratch.
