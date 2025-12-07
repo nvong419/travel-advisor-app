@@ -1,10 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 
-/**
- * Simple trips screen for when navigation is added.
- * Pass in trips array and optional onSelect handler to keep state in HomeScreen for now.
- */
+// Simple list view for all trips; reads shared state and can notify selection.
 export default function TripsScreen({ trips = [], onSelect }) {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -18,7 +15,7 @@ export default function TripsScreen({ trips = [], onSelect }) {
               <Text style={styles.tripName}>{trip.name}</Text>
               <Text style={styles.tripDates}>{trip.dates || 'Dates TBD'}</Text>
               <Text style={styles.tripMeta}>
-                Budget {trip.budget ? `$${trip.budget}` : 'TBD'} • Spent ${trip.spent}
+                Budget {trip.budget ? `$${trip.budget}` : 'TBD'} | Spent ${trip.spent}
               </Text>
             </View>
             {onSelect ? (

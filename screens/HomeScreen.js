@@ -1,13 +1,7 @@
 import React, { useMemo, useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  TextInput,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput } from 'react-native';
 
+// Starter data to showcase how the planner is structured
 const seedTrips = [
   {
     id: '1',
@@ -15,7 +9,7 @@ const seedTrips = [
     dates: 'Jan 12 - Jan 15',
     budget: 1200,
     spent: 450,
-    itinerary: ['Tram 28 ride + Alfama walk', 'Time Out Market lunch', 'Sunset at Miradouro da Graça'],
+    itinerary: ['Tram 28 ride + Alfama walk', 'Time Out Market lunch', 'Sunset at Miradouro da Graca'],
     packing: [
       { label: 'Passport', done: true },
       { label: 'Universal adapter', done: false },
@@ -37,9 +31,22 @@ const seedTrips = [
   },
 ];
 
-export default function HomeScreen() {
-  const [trips, setTrips] = useState(seedTrips);
-  const [selectedTripId, setSelectedTripId] = useState(seedTrips[0]?.id ?? null);
+export default function HomeScreen({
+  navigation,
+  trips: externalTrips,
+  setTrips: setExternalTrips,
+  selectedTripId: externalSelectedTripId,
+  setSelectedTripId: setExternalSelectedTripId,
+}) {
+  // Allow Home to run standalone (internal state) or controlled by parent (props)
+  const [internalTrips, setInternalTrips] = useState(seedTrips);
+  const [internalSelectedTripId, setInternalSelectedTripId] = useState(seedTrips[0]?.id ?? null);
+  const trips = externalTrips ?? internalTrips;
+  const setTrips = setExternalTrips ?? setInternalTrips;
+  const selectedTripId = externalSelectedTripId ?? internalSelectedTripId;
+  const setSelectedTripId = setExternalSelectedTripId ?? setInternalSelectedTripId;
+
+  // Local UI state for edits and quick adds (trips, itinerary, packing, budget)
   const [tripName, setTripName] = useState('');
   const [tripDates, setTripDates] = useState('');
   const [editingTripId, setEditingTripId] = useState(null);
@@ -47,11 +54,13 @@ export default function HomeScreen() {
   const [packingEntry, setPackingEntry] = useState('');
   const [expense, setExpense] = useState('');
 
+  // Current trip reference derived from selection
   const selectedTrip = useMemo(
     () => trips.find((trip) => trip.id === selectedTripId) || trips[0],
     [selectedTripId, trips]
   );
 
+  // Create or update a trip from the inline controls
   const handleSaveTrip = () => {
     if (!tripName.trim()) {
       return;
@@ -83,6 +92,7 @@ export default function HomeScreen() {
     setTripDates('');
   };
 
+  // Load existing trip data into inline inputs
   const handleEditTrip = (trip) => {
     setTripName(trip.name);
     setTripDates(trip.dates);
@@ -90,7 +100,14 @@ export default function HomeScreen() {
     setSelectedTripId(trip.id);
   };
 
+  // Remove a trip and reset selection if needed
   const handleDeleteTrip = (id) => {
+    if (editingTripId === id) {
+      setEditingTripId(null);
+      setTripName('');
+      setTripDates('');
+    }
+
     setTrips((prev) => {
       const updated = prev.filter((trip) => trip.id !== id);
       if (selectedTripId === id) {
@@ -100,6 +117,7 @@ export default function HomeScreen() {
     });
   };
 
+  // Append an itinerary line item to the selected trip
   const handleAddItinerary = () => {
     if (!itineraryEntry.trim() || !selectedTrip) {
       return;
@@ -115,6 +133,7 @@ export default function HomeScreen() {
     setItineraryEntry('');
   };
 
+  // Append a packing item to the selected trip
   const handleAddPacking = () => {
     if (!packingEntry.trim() || !selectedTrip) {
       return;
@@ -130,6 +149,7 @@ export default function HomeScreen() {
     setPackingEntry('');
   };
 
+  // Toggle completion state for a packing item
   const togglePackingItem = (label) => {
     if (!selectedTrip) {
       return;
@@ -149,6 +169,7 @@ export default function HomeScreen() {
     );
   };
 
+  // Add an expense value to the selected trip
   const handleAddExpense = () => {
     if (!selectedTrip) {
       return;
@@ -166,6 +187,7 @@ export default function HomeScreen() {
     setExpense('');
   };
 
+  // Update the total budget for the selected trip
   const updateBudget = (amount) => {
     if (!selectedTrip) {
       return;
@@ -178,6 +200,12 @@ export default function HomeScreen() {
     setTrips((prev) =>
       prev.map((trip) => (trip.id === selectedTrip.id ? { ...trip, budget: numericBudget } : trip))
     );
+  };
+
+  const goToTrips = () => {
+    if (navigation?.navigate) {
+      navigation.navigate('Trips');
+    }
   };
 
   return (
@@ -193,8 +221,13 @@ export default function HomeScreen() {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Upcoming trips</Text>
-          <View style={styles.pill}>
-            <Text style={styles.pillText}>{trips.length} planned</Text>
+          <View style={styles.sectionHeaderRight}>
+            <TouchableOpacity style={styles.linkButton} onPress={goToTrips} disabled={!navigation}>
+              <Text style={styles.linkText}>View all</Text>
+            </TouchableOpacity>
+            <View style={styles.pill}>
+              <Text style={styles.pillText}>{trips.length} planned</Text>
+            </View>
           </View>
         </View>
 
@@ -233,7 +266,7 @@ export default function HomeScreen() {
                 <Text style={styles.tripName}>{trip.name}</Text>
                 <Text style={styles.tripDates}>{trip.dates || 'Dates TBD'}</Text>
                 <Text style={styles.tripMeta}>
-                  Budget {trip.budget ? `$${trip.budget}` : 'TBD'} • Spent ${trip.spent}
+                  Budget {trip.budget ? `$${trip.budget}` : 'TBD'} | Spent ${trip.spent}
                 </Text>
               </View>
               <View style={styles.tripActions}>
@@ -264,7 +297,7 @@ export default function HomeScreen() {
               ) : (
                 selectedTrip.itinerary.map((item, index) => (
                   <View key={`${item}-${index}`} style={styles.row}>
-                    <Text style={styles.rowDot}>•</Text>
+                    <Text style={styles.rowDot}>-</Text>
                     <Text style={styles.rowText}>{item}</Text>
                   </View>
                 ))
@@ -346,7 +379,7 @@ export default function HomeScreen() {
                     activeOpacity={0.8}
                   >
                     <View style={[styles.checkbox, item.done && styles.checkboxChecked]}>
-                      {item.done ? <Text style={styles.checkboxTick}>✓</Text> : null}
+                      {item.done ? <Text style={styles.checkboxTick}>X</Text> : null}
                     </View>
                     <Text style={[styles.packingLabel, item.done && styles.packingLabelDone]}>{item.label}</Text>
                   </TouchableOpacity>
@@ -420,6 +453,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 10,
+  },
+  sectionHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   sectionTitle: {
     fontSize: 18,
@@ -544,12 +582,6 @@ const styles = StyleSheet.create({
     color: '#ff8699',
     fontWeight: '700',
   },
-  cardHeadline: {
-    color: '#f5f7fb',
-    fontWeight: '800',
-    fontSize: 16,
-    marginBottom: 4,
-  },
   emptyText: {
     color: '#7aa0d6',
   },
@@ -577,8 +609,8 @@ const styles = StyleSheet.create({
   },
   rowDot: {
     color: '#70c0ff',
-    fontSize: 20,
-    lineHeight: 22,
+    fontSize: 18,
+    lineHeight: 20,
   },
   rowText: {
     color: '#f5f7fb',
