@@ -1,19 +1,18 @@
 # Final React Native App
 
-A simple Expo-based travel planner app with a Home dashboard, trip form, and trip list screens.
+Simple Expo-based travel planner with a Home dashboard and a Trips list.
 
 ## Features
-- Home dashboard to view and select trips
-- Add new trips via a dedicated form (name, dates, budget, itinerary lines, packing items)
-- Edit or delete existing trips from Home
+- Home dashboard to view, add, edit, or delete trips
 - Daily itinerary list with quick add
 - Budget tracker with editable budget and expense logging
 - Packing checklist with add/toggle completion
 - Trips list screen to browse and jump to a trip
+- (TripFormScreen exists but is not wired to the current lightweight navigation)
 
 ## Prerequisites
 - Node.js and npm installed
-- Expo CLI (runs via `npx expo` so global install is optional)
+- Expo CLI is not required globally; `npx expo` works fine
 
 ## Install dependencies
 ```bash
@@ -24,23 +23,21 @@ npm install
 ```bash
 npx expo start
 ```
-Then choose a platform:
+Then choose a platform in the Expo CLI prompt:
 - Press `a` for Android emulator/device
 - Press `i` for iOS simulator (macOS only)
 - Press `w` for web
 
-## Navigation packages (already in package.json)
-If you need to reinstall navigation deps:
-```bash
-npm install @react-navigation/native @react-navigation/bottom-tabs react-native-screens react-native-safe-area-context
-```
+## Notes on navigation
+- The app currently uses a simple in-app screen toggle (no React Navigation at runtime).
+- Navigation packages remain in `package.json` but are not needed for the current build.
 
 ## Project structure (key files)
-- `App.js` — app entry; sets up navigation and shared trip state
+- `App.js` — app entry; manages shared trip state and simple Home/Trips toggle
 - `screens/HomeScreen.js` — main dashboard for trips, itinerary, budget, packing
-- `screens/TripFormScreen.js` — form to add a new trip
+- `screens/TripFormScreen.js` — standalone trip form (not wired into navigation)
 - `screens/TripsScreen.js` — list view of all trips
 
 ## Tips
-- If the metro bundler is stuck, stop it and clear cache: `npx expo start -c`
-- Run `npm audit fix` only if you want to address security advisories; not required to run the app
+- If Metro is stuck, clear cache: `npx expo start -c`
+- `npm audit fix` is optional; not required to run the app
